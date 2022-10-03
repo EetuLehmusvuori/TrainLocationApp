@@ -1,117 +1,147 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
-import React from 'react';
-import type {Node} from 'react';
-import {
-  SafeAreaView,
+import React, {useState} from 'react';
+// Import required components
+import {SafeAreaView, 
+  StyleSheet, 
+  View, 
+  Button,
+  Alert,
+  Linking,
+  PermissionsAndroid,
+  Platform,
   ScrollView,
-  StatusBar,
-  StyleSheet,
+  Switch,
   Text,
-  useColorScheme,
-  View,
+  ToastAndroid,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+// Import Map and Marker
+import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
+import Geolocation from 'react-native-geolocation-service';
 
-/* $FlowFixMe[missing-local-annot] The type annotation(s) required by Flow's
- * LTI update could not be added via codemod */
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
+import {hasPermissionIOS, hasLocationPermission} from './permissions/Permissions';
+import {getLocation} from './location/Location';
 
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
+//Next two: Do not show Warn messages on UI
+import { LogBox } from 'react-native';
+LogBox.ignoreAllLogs();
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+// let watchId=null;
+const App = () => {
+  const [forceLocation, setForceLocation] = useState(true);
+  const [highAccuracy, setHighAccuracy] = useState(true);
+  const [locationDialog, setLocationDialog] = useState(true);
+  const [significantChanges, setSignificantChanges] = useState(false);
+  const [isObserving, setObserving] = useState(false);
+  const [foregroundService, setForegroundService] = useState(false);
+  const [useLocationManager, setUseLocationManager] = useState(false);
+  
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [mapRegion, setMapRegion]=useState({ latitude: 61.46894, longitude: 24.0215659, latitudeDelta: 0, longitudeDelta: 0.0421 });
+  const [location, setLocation]=useState({coords: {latitude: 61.46894, longitude: 24.0215659, latitudeDelta: 0, longitudeDelta: 0.0421}});
+  const [mapType, setMapType]=useState('satellite');
+  const [latlng, setLatlng]=useState("Not yet");
+
+  const setCurrentLocation=(position)=>{
+    setLocation(position);
+    setLatlng("("+position.coords.latitude+", "+position.coords.longitude+")")
+  }
+
+
+  const getLocationUpdates = async () => {
+    if (isObserving==true){//if already observing
+      return;
+    }
+    const hasPermission = await hasLocationPermission();
+
+    if (!hasPermission) {
+      return;
+    }
+    //setting state variable isObserving
+    setObserving(true);
+
+    Geolocation.watchPosition(
+          (position) => {
+        setLocation(position);
+        setLatlng("("+position.coords.latitude+", "+position.coords.longitude+")")
+        console.log(position);
+      },
+      (error) => {
+        setLocation(null);
+        console.log(error);
+      },
+      {
+        accuracy: {
+          android: 'high',
+          ios: 'best',
+        },
+        enableHighAccuracy: highAccuracy,
+        distanceFilter: 0,
+        interval: 5000,
+        fastestInterval: 2000,
+        forceRequestLocation: forceLocation,
+        forceLocationManager: useLocationManager,
+        showLocationDialog: locationDialog,
+        useSignificantChanges: significantChanges,
+      },
+    );
   };
+  const stopLocationUpdates=()=>{
+    Geolocation.stopObserving();
+    setObserving(false);
+  }
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+    <SafeAreaView style={{flex: 1}}>
+      <View style={styles.container}>
+        <MapView
+          provider={PROVIDER_GOOGLE}
+          style={styles.mapStyle}
+          initialRegion={{
+            latitude: 61.78825,
+            longitude: 24.4324,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+          // mapType can be standard, none, satellite, terrain (Android only), mutedStandard (IOS 11.0+ only)
+          mapType={mapType} 
+          region={mapRegion}
+          showUserLocation={true}
+          // customMapStyle={mapStyle}
+          >
+          <Marker
+            draggable
+            coordinate={mapRegion}
+            onDragEnd={
+              (e) => alert(JSON.stringify(e.nativeEvent.coordinate))
+            }
+            title={'Test Marker'}
+            description={'This is a description of the marker'}
+          />
+        </MapView>
+      </View>
+      <View style={styles.buttonView}>
+        {/* Button press calls function getLocation of file ./location/Location.js */}
+        <Button title="Get location" onPress={()=>getLocation(setCurrentLocation, highAccuracy, forceLocation, useLocationManager,locationDialog)} />
+        <Button title="Start continuous" onPress={()=>getLocationUpdates()} />
+        <Button title="Stop observing" onPress={()=>stopLocationUpdates()} />
+        <Text>{latlng}</Text>
+      </View>
+
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
 export default App;
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex:7,
+  },
+  mapStyle: {
+    flex:1,
+  },
+  buttonView:{
+    flex:2,
+  }
+});
