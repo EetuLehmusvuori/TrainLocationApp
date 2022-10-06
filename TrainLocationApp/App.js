@@ -1,22 +1,45 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  View,
+  Text,
   Button,
   StyleSheet,
-  Text,
-  TextInput,
+  Image,
   FlatList,
-  View,
+  TouchableOpacity,
+  TextInput,
 } from 'react-native';
+import {NavigationContainer, useFocusEffect} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
 
 const App = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Tietoja">
+        <Stack.Screen name="Koti" component={KotiScreen} />
+        <Stack.Screen name="Tietoja" component={TietojaScreen} />
+        <Stack.Screen name="Kuva" component={ImageScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+
+const KotiScreen = props => {
+  const [updateId, setUpdateId] = useState(0);
   const [newTrain, setTrain] = useState();
   const [trains, setTrains] = useState([]);
+  const selectItemToUpdate = trainNumber1 => {
+    setUpdateId(trainNumber1);
+    setTrain(trains[trainNumber1].trainNumber1);
+    props.navigation.navigate('Tietoja', {train: trains[trainNumber1]});
+  };
 
   const keyHandler = (item, index) => {
     console.log(item.trainNumber1 + '. ' + item.speed1);
     return index.toString();
   };
-
   const fetchTrain = async () => {
     let trainList = [];
     try {
@@ -42,26 +65,34 @@ const App = () => {
     setTrains(trainList);
     console.log(trainList);
   };
-  const renderTrain = (item) => {
+  const renderTrain = item => {
     console.log(
-      'renderTrain A:xxxxxxxxxxxxxx ' + item.item.trainNumber1 + ' = ' + item.item.speed1,
+      'renderTrain A:xxxxxxxxxxxxxx ' +
+        item.item.trainNumber1 +
+        ' = ' +
+        item.item.speed1,
     );
     return (
-      <View style={styles.listItemStyle}>
-        <Text>
-          {item.item.trainNumber1} {item.item.speed1}
-        </Text>
-      </View>
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => selectItemToUpdate(item.index)}>
+        <View style={styles.listItemStyle}>
+          <Text>
+            Junan nro: {item.item.trainNumber1} Nopeus: {item.item.speed1}km/h
+          </Text>
+        </View>
+      </TouchableOpacity>
     );
   };
   return (
-    <View style={styles.container}>
+    <View style={{flex: 1}}>
       <Button
         style={styles.buttonStyle}
         title="Read train"
         onPress={fetchTrain}
       />
       <View style={styles.listStyle}>
+        <Text>Junat</Text>
         <FlatList
           style={styles.flatliststyle}
           keyExtractor={keyHandler}
@@ -69,60 +100,111 @@ const App = () => {
           renderItem={renderTrain}
         />
       </View>
+      <NavButtons params={props} />
+    </View>
+  );
+};
+const TietojaScreen = props => {
+  const [newTrain, setTrain] = useState(
+    props.route.params == undefined ? '' : props.route.params.train.trainNumber1,
+  );
+  useEffect(() => {
+    setTrain(
+      props.route.params == undefined ? '' : props.route.params.train.trainNumber1,
+    );
+  }, [props.route.params]);
+
+  return (
+    <View style={{flex: 1}}>
+      <View style={{flex: 8, alignItems: 'center', justifyContent: 'center'}}>
+      {props.route.params ?
+          <Text>
+            Junan nro: {props.route.params.train.trainNumber1} Nopeus:
+            {props.route.params.train.speed1}km/h
+          </Text>
+      : null}
+      </View>
+      <NavButtons params={props} />
+    </View>
+  );
+};
+const ImageScreen = props => {
+  return (
+    <View style={{flex: 1}}>
+      <View style={{flex: 8, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={styles.imageContainer}>
+          <Image
+            source={require('./assets/stop.png')}
+            style={styles.image}
+            resizeMode="cover"
+          />
+        </View>
+      </View>
+      <NavButtons params={props} />
+    </View>
+  );
+};
+
+const NavButton = par => {
+  if (par.name != par.active) {
+    return (
+      <Button
+        onPress={() => par.params.navigation.navigate(par.name)}
+        title={par.name}
+      />
+    );
+  }
+  return null;
+};
+const NavButtons = ({params}) => {
+  return (
+    <View style={styles.navbuttonstyle}>
+      <NavButton params={params} name="Koti" active={params.route.name} />
+      <NavButton params={params} name="Tietoja" active={params.route.name} />
+      <NavButton params={params} name="Kuva" active={params.route.name} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  flatliststyle: {
-    wtrainNumberth: '80%',
-    backgroundColor: 'blue',
-  },
-  listItemStyle: {
-    borderWtrainNumberth: 1,
-    borderColor: 'blue',
-    padding: 5,
-    backgroundColor: '#abc',
-    wtrainNumberth: '80%',
-    alignSelf: 'center',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    wtrainNumberth: '100%',
-  },
-  formView: {
-    flex: 1,
+  navbuttonstyle: {
+    flex: 2,
     flexDirection: 'row',
     backgroundColor: '#def',
     alignItems: 'center',
     justifyContent: 'space-around',
-    marginTop: 20,
-    wtrainNumberth: '100%',
+  },
+  imageContainer: {
+    height: 200,
+    width: '50%',
+    borderRadius: 200,
+    overflow: 'hidden',
+    borderWidth: 3,
+    borderColor: 'blue',
+  },
+  image: {
+    height: '100%',
+    width: '100%',
+  },
+  listItemStyle: {
+    borderWidth: 2,
+    borderColor: 'blue',
+    padding: 8,
+    backgroundColor: '#abc',
+    width: '80%',
+    alignSelf: 'center',
   },
   listStyle: {
     flex: 8,
     alignItems: 'center',
     backgroundColor: '#eee',
-    borderColor: 'green',
-    borderWtrainNumberth: 2,
-    wtrainNumberth: '100%',
+    borderColor: 'blue',
+    borderWidth: 2,
+    width: '100%',
   },
-  inputStyle: {
-    backgroundColor: '#abc',
-    borderColor: 'black',
-    borderWtrainNumberth: 2,
-    margin: 2,
-    padding: 5,
-    wtrainNumberth: '50%',
-  },
-  buttonStyle: {
-    margin: 2,
-    padding: 5,
-    wtrainNumberth: '20%',
+  flatliststyle: {
+    width: '100%',
+    backgroundColor: 'blue',
   },
 });
-
 export default App;
