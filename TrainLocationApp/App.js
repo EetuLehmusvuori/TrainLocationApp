@@ -7,8 +7,17 @@ import { Button, StyleSheet, Text, TextInput, FlatList, View } from 'react-nativ
  
 
 const App=() => {
-const [newTrain, setData]=useState();
- const [loading, setLoading]=useState(true)
+const [newTrain, setTrain]=useState();
+const [trainlist, addTrain]=useState();
+const [loading, setLoading]=useState(true)
+
+const setTrainList=()=>{
+    addTrain=(list);
+}
+const keyHandler=(item)=>{
+    console.log(item.coordinates+". "+item.trainNumber+". "+item.speed);
+    return item.trainNumber.toString
+}
  
    const fetch = require("node-fetch");
 
@@ -29,14 +38,31 @@ const [newTrain, setData]=useState();
     console.log(json.features[i].properties.trainNumber);
     console.log(json.features[i].properties.speed);
     }
+        setTrainList(json)
+        console.log("Juna lisätty")
     }
-    catch(ex){
-      console.log("dadwdasd");
+    catch(error){
+      console.log("error");
     
     }}
+    const renderTrain=(item)=>{
+        console.log("RenderTrain A:"+item.item.coordinates+"="+item.item.trainNumber+"="+item.item.speed);
+        return <View>
+            <Text>{item.index} {fetchTrain.item.coordinates} {fetchTrain.item.trainNumber} {fetchTrain.item.speed}</Text>
+            </View>;
+            
+    }
+
       return(<View>
-        <Text>Hello train</Text>
+        <Text>Trains</Text>
         <Button title="Näytä junat" onPress={fetchTrain}/>
+        <View>
+        <FlatList
+        keyExtractor={keyHandler}
+        data={fetchTrain.trainlist}
+        renderItem={renderTrain}
+        />
+        </View>
         </View>);
     
     }
