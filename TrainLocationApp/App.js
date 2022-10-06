@@ -11,46 +11,40 @@ const [newTrain, setData]=useState();
  const [loading, setLoading]=useState(true)
  
    const fetch = require("node-fetch");
-const fetchTrain=async()=>{
 
+   const fetchTrain=async()=>{
     try{
-  
-console.log("Fetching data");
-
+    console.log("Fetching data");
     let response=await fetch("https://rata.digitraffic.fi/api/v1/train-locations.geojson/latest");
-
     console.log(response);
-
     console.log("JSONing data");
-
     let json=await response.json();
 
     console.log(json);
-    console.log("Ensimmäinen juna");
-    console.log(json.features[0].geometry.coordinates);
-    console.log(json.features[0].properties.trainNumber);
-    console.log(json.features[0].properties.speed);
-
-
-   
-
+    var s = "";
+    for(var i = 0; i < json.features.length; i ++) {
+      s += json.features[i] + "<br>";
+    
+    console.log(json.features[i].geometry.coordinates);
+    console.log(json.features[i].properties.trainNumber);
+    console.log(json.features[i].properties.speed);
     }
-
+    }
     catch(ex){
-        console.log("dadwdasd");
-     
-
+      console.log("dadwdasd");
+    
+    }}
+      return(<View>
+        <Text>Hello train</Text>
+        <Button title="Näytä junat" onPress={fetchTrain}/>
+        </View>);
+    
     }
-  }
-
- return(<View>
-    <Text>Hello train</Text>
-    <Button title="Näytä junat" onPress={fetchTrain}/>
-    </View>);
-
-}
 
 export default App;
+   
+
+  
  
 
   
