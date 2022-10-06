@@ -65,7 +65,7 @@ const KotiScreen = props => {
     setTrains(trainList);
     console.log(trainList);
   };
-  const renderTrain = item => {
+  const renderTrain = (item) => {
     console.log(
       'renderTrain A:xxxxxxxxxxxxxx ' +
         item.item.trainNumber1 +
