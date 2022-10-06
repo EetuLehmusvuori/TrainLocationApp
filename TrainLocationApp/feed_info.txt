@@ -1,0 +1,2 @@
+feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version
+Fintraffic,https://www.digitraffic.fi/rautatieliikenne/,fi,20220927,20231231,2022-10-04T02:30:19.345Z
