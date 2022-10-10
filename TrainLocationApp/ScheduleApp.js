@@ -6,6 +6,7 @@ import {
   TextInput,
   FlatList,
   View,
+  ImageEditor,
 } from 'react-native';
 
 const App = () => {
@@ -13,7 +14,7 @@ const App = () => {
   const [trains, setTrains] = useState([]);
 
   const keyHandler = (item, index) => {
-    console.log(item.trainNumber1 + '. ' + item.speed1);
+    console.log(item.trainType1 + '. ' + item.trainNumber1 + '. ' + item.station1 + '. ' + item.scheduledTime1 + '. ' + item.actualTime1 + '. ' + item.latency1);
     return index.toString();
   };
 
@@ -22,34 +23,37 @@ const App = () => {
     try {
       console.log('Fetching data');
       let response = await fetch(
-        'https://rata.digitraffic.fi/api/v1/train-locations.geojson/latest',
+        'https://rata.digitraffic.fi/api/v1/live-trains',
       );
       console.log(response);
       console.log('JSONing data');
       let json = await response.json();
       for (let i = 0; i < json.features.length; i++) {
         const trainObject = {
-          coordinates1: json.features[i].geometry.coordinates,
-          trainNumber1: json.features[i].properties.trainNumber,
-          speed1: json.features[i].properties.speed,
+          trainType1: json.features[i].trainType,
+          trainNumber1: json.features[i].trainNumber,
+          station1: json.features[i].stationShortCode,
+          scheduledTime1: json.features[i].scheduledTime,
+          actualTime1: json.features[i].actualTime,
+          latency1: json.features[i].differenceInMinutes,
         };
         trainList.push(trainObject);
-        console.log('Juna lisätty');
+        console.log('Aikataulut saatu');
       }
-    } catch (ex) {
-      console.log('dadwdasd');
+    } catch (error) {
+      console.log('error');
     }
     setTrains(trainList);
     console.log(trainList);
   };
   const renderTrain = (item) => {
     console.log(
-      'renderTrain A:xxxxxxxxxxxxxx ' + item.item.trainNumber1 + ' = ' + item.item.speed1,
+      'renderTrain A:xxxxxxxxxxxxxx ' + item.item.trainType1 + ' = ' + item.item.station1 + ' = ' + item.item.trainNumber1 + ' = ' + item.item.scheduledTime1 + ' = ' + item.item.actualTime1 + ' = ' + item.item.latency1,
     );
     return (
       <View style={styles.listItemStyle}>
         <Text>
-          {item.item.trainNumber1} {item.item.speed1}
+        {item.item.trainType1} {item.item.trainNumber1} Asema:{item.item.station1} Tuloaika:{item.item.scheduledTime1} Oikea Tuloaika{item.item.actualTime1} Myöhästyminen: {item.item.differenceInMinutes}
         </Text>
       </View>
     );
@@ -59,7 +63,7 @@ const App = () => {
     <View style={styles.container}>
       <Button
         style={styles.buttonStyle}
-        title="Read train"
+        title="Näytä Junien Aikataulut"
         onPress={fetchTrain}
       />
       <View style={styles.listStyle}>
