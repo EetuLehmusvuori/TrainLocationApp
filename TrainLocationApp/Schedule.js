@@ -9,17 +9,30 @@ import {
   ImageEditor,
 } from 'react-native';
 
-const App = () => {
-  const [newTrain, setTrain] = useState();
-  const [trains, setTrains] = useState([]);
+const ScheduleApp = () =>{
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Tietoja">
+        <Stack.Screen name="Koti" component={KotiScreen} />
+        <Stack.Screen name="Tietoja" component={TietojaScreen} />
+        <Stack.Screen name="Kuva" component={ImageScreen} />
+        <Stack.Screen name="Aikataulut" component={Schedule} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+const Schedule = () => {
+  const [newTrain, setTrainsSchedule] = useState();
+  const [trains, setTrainsSchedules] = useState([]);
 
   const keyHandler = (item, index) => {
     console.log(item.trainType1 + '. ' + item.trainNumber1 + '. ' + item.station1 + '. ' + item.scheduledTime1 + '. ' + item.actualTime1 + '. ' + item.latency1);
     return index.toString();
   };
 
-  const fetchTrain = async () => {
-    let trainList = [];
+  const fetchTrainSchedule = async () => {
+    let trainScheduleList = [];
     try {
       console.log('Fetching data');
       let response = await fetch(
@@ -37,14 +50,14 @@ const App = () => {
           actualTime1: json.features[i].actualTime,
           latency1: json.features[i].differenceInMinutes,
         };
-        trainList.push(trainObject);
+        trainScheduleList.push(trainObject);
         console.log('Aikataulut saatu');
       }
     } catch (error) {
       console.log('error');
     }
-    setTrains(trainList);
-    console.log(trainList);
+    setTrainsSchedule(trainScheduleList);
+    console.log(trainScheduleList);
   };
   const renderTrain = (item) => {
     console.log(
@@ -64,7 +77,7 @@ const App = () => {
       <Button
         style={styles.buttonStyle}
         title="Näytä Junien Aikataulut"
-        onPress={fetchTrain}
+        onPress={fetchTrainSchedule}
       />
       <View style={styles.listStyle}>
         <FlatList
@@ -74,6 +87,70 @@ const App = () => {
           renderItem={renderTrain}
         />
       </View>
+    </View>
+    
+  );
+};
+
+const TietojaScreen = props => {
+  const [newTrain, setTrain] = useState(
+    props.route.params == undefined ? '' : props.route.params.train.trainNumber1,
+  );
+  useEffect(() => {
+    setTrain(
+      props.route.params == undefined ? '' : props.route.params.train.trainNumber1,
+    );
+  }, [props.route.params]);
+
+  return (
+    <View style={{flex: 1}}>
+      <View style={{flex: 8, alignItems: 'center', justifyContent: 'center'}}>
+      {props.route.params ?
+          <Text>
+            Junan nro: {props.route.params.train.trainNumber1} Nopeus:
+            {props.route.params.train.speed1}km/h
+          </Text>
+      : null}
+      </View>
+      <NavButtons params={props} />
+    </View>
+  );
+};
+const ImageScreen = props => {
+  return (
+    <View style={{flex: 1}}>
+      <View style={{flex: 8, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={styles.imageContainer}>
+          <Image
+            source={require('./assets/stop.png')}
+            style={styles.image}
+            resizeMode="cover"
+          />
+        </View>
+      </View>
+      <NavButtons params={props} />
+    </View>
+  );
+};
+
+const NavButton = par => {
+  if (par.name != par.active) {
+    return (
+      <Button
+        onPress={() => par.params.navigation.navigate(par.name)}
+        title={par.name}
+      />
+    );
+  }
+  return null;
+};
+const NavButtons = ({params}) => {
+  return (
+    <View style={styles.navbuttonstyle}>
+      <NavButton params={params} name="Koti" active={params.route.name} />
+      <NavButton params={params} name="Tietoja" active={params.route.name} />
+      <NavButton params={params} name="Kuva" active={params.route.name} />
+      <NavButton params={params} name="AikaTaulu" active={params.route.name} />
     </View>
   );
 };
@@ -132,4 +209,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default Schedule;
