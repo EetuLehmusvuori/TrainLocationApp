@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import {NavigationContainer, useFocusEffect} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import Schedule from './Schedule';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +22,7 @@ const App = () => {
         <Stack.Screen name="Koti" component={KotiScreen} />
         <Stack.Screen name="Tietoja" component={TietojaScreen} />
         <Stack.Screen name="Kuva" component={ImageScreen} />
+        <Stack.Screen name="Aikataulut" component={Schedule} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -163,6 +165,7 @@ const NavButtons = ({params}) => {
       <NavButton params={params} name="Koti" active={params.route.name} />
       <NavButton params={params} name="Tietoja" active={params.route.name} />
       <NavButton params={params} name="Kuva" active={params.route.name} />
+      <NavButton params={params} name="AikaTaulu" active={params.route.name} />
     </View>
   );
 };
@@ -232,3 +235,4 @@ const styles = StyleSheet.create({
   },
 });
 
+export default App;
