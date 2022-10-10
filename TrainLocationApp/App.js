@@ -84,6 +84,7 @@ const KotiScreen = props => {
       </TouchableOpacity>
     );
   };
+
   return (
     <View style={{flex: 1}}>
       <Button
@@ -191,11 +192,14 @@ const styles = StyleSheet.create({
     borderColor: 'blue',
     padding: 8,
     backgroundColor: '#abc',
-    width: '80%',
+
     alignSelf: 'center',
+    width: '100%',
   },
+
   listStyle: {
     flex: 8,
+    width:'100%',
     alignItems: 'center',
     backgroundColor: '#eee',
     borderColor: 'blue',
@@ -207,4 +211,3 @@ const styles = StyleSheet.create({
     backgroundColor: 'blue',
   },
 });
-export default App;
