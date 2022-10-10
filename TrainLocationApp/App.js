@@ -217,9 +217,11 @@ const styles = StyleSheet.create({
     borderColor: 'blue',
     padding: 8,
     backgroundColor: '#abc',
-    width: '80%',
+
     alignSelf: 'center',
+    width: '100%',
   },
+
   listStyle: {
     flex: 8,
     width:'100%',
