@@ -18,11 +18,10 @@ const Stack = createNativeStackNavigator();
 const App = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Tietoja">
+      <Stack.Navigator initialRouteName="Koti">
         <Stack.Screen name="Koti" component={KotiScreen} />
         <Stack.Screen name="Tietoja" component={TietojaScreen} />
-        <Stack.Screen name="Kuva" component={ImageScreen} />
-        <Stack.Screen name="Aikataulut" component={Schedule} />
+        <Stack.Screen name="Schedule" component={ScheduleScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -131,20 +130,87 @@ const TietojaScreen = props => {
     </View>
   );
 };
-const ImageScreen = props => {
-  return (
-    <View style={{flex: 1}}>
-      <View style={{flex: 8, alignItems: 'center', justifyContent: 'center'}}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={require('./assets/stop.png')}
-            style={styles.image}
-            resizeMode="cover"
-          />
-        </View>
+
+// Aikatauli sivun alku
+const ScheduleScreen = props => {
+  const [newTrain, setTrainsSchedule] = useState();
+  const [trains2, setTrainsSchedules] = useState([]);
+
+  const keyHandler2 = (item, index) => {
+    console.log(item.trainType + '. ' + item.trainNumber + '. ' + item.stationShortCode + '. ' + item.scheduledTime + '. ' + item.actualTime + '. ' + item.latency);
+    return index.toString();
+  };
+
+  const fetchTrainSchedule = async () => {
+    let trainScheduleList = [];
+    try {
+      console.log('Fetching data');
+      let response = await fetch(
+        'https://rata.digitraffic.fi/api/v1/live-trains',
+      );
+      console.log('response');
+      console.log(response);
+      console.log('JSONing data');
+      let json = await response.json();
+      console.log('dadadwadsd');
+     
+      console.log(json[0].trainType);
+      console.log(json[0].trainNumber);
+      for (let i = 0; i < json[0].timeTableRows.length; i++){
+      console.log(json[0].timeTableRows[i].stationShortCode);
+      console.log(json[0].timeTableRows[i].scheduledTime);
+      console.log(json[0].timeTableRows[i].actualTime);
+      console.log(json[0].timeTableRows[i].differenceInMinutes);
+      }
+    
+      // for (let i = 0; i < json.length; i++) {
+      //   const trainObject2 = {
+      //     trainType1: json[i].trainType,
+      //     trainNumber1: json[i].trainNumber,
+      //     // station1: json.features[i].stationShortCode,
+      //     // scheduledTime1: json.features[i].scheduledTime,
+      //     // actualTime1: json.features[i].actualTime,
+      //     // latency1: json.features[i].differenceInMinutes,
+      //   };
+      trainScheduleList.push(trainObject2);
+      console.log('Aikataulut saatu');
+      // }
+    } catch (error) {
+      console.log('error');
+    }
+    setTrainsSchedules(trainScheduleList);
+    console.log(trainScheduleList);
+  };
+  const renderTrainSchedule = (item) => {
+    console.log(
+      'renderTrain A: ' + item.item.trainType + ' = ' + item.item.station + ' = ' + item.item.trainNumber + ' = ' + item.item.scheduledTime + ' = ' + item.item.actualTime + ' = ' + item.item.latency,
+    );
+    return (
+      <View style={styles.listItemStyle}>
+        <Text>
+        {item.item.trainType1} {item.item.trainNumber1} Asema:{item.item.station1} Tuloaika:{item.item.scheduledTime1} Oikea Tuloaika{item.item.actualTime1} Myöhästyminen: {item.item.differenceInMinutes}
+        </Text>
       </View>
-      <NavButtons params={props} />
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <Button
+        style={styles.buttonStyle}
+        title="Näytä Junien Aikataulut"
+        onPress={fetchTrainSchedule}
+      />
+      <View style={styles.listStyle}>
+        <FlatList
+          style={styles.flatliststyle}
+          keyExtractor={keyHandler2}
+          data={trains2}
+          renderItem={renderTrainSchedule}
+        />
+      </View>
     </View>
+    
   );
 };
 
@@ -164,8 +230,7 @@ const NavButtons = ({params}) => {
     <View style={styles.navbuttonstyle}>
       <NavButton params={params} name="Koti" active={params.route.name} />
       <NavButton params={params} name="Tietoja" active={params.route.name} />
-      <NavButton params={params} name="Kuva" active={params.route.name} />
-      <NavButton params={params} name="AikaTaulu" active={params.route.name} />
+      <NavButton params={params} name="Schedule" active={params.route.name} />
     </View>
   );
 };

@@ -116,6 +116,22 @@ const TietojaScreen = props => {
     </View>
   );
 };
+const ScheduleScreen = props => {
+  return (
+    <View style={{flex: 1}}>
+      <View style={{flex: 8, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={styles.imageContainer}>
+          <Image
+            source={require('./assets/stop.png')}
+            style={styles.image}
+            resizeMode="cover"
+          />
+        </View>
+      </View>
+      <NavButtons params={props} />
+    </View>
+  );
+};
 const ImageScreen = props => {
   return (
     <View style={{flex: 1}}>
