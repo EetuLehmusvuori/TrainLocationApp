@@ -66,7 +66,7 @@ const KotiScreen = props => {
     setTrains(trainList);
     console.log(trainList);
   };
-  const renderTrain = (item) => {
+  const renderTrain = item => {
     console.log(
       'renderTrain A:xxxxxxxxxxxxxx ' +
         item.item.trainNumber1 +
@@ -108,23 +108,27 @@ const KotiScreen = props => {
 };
 const TietojaScreen = props => {
   const [newTrain, setTrain] = useState(
-    props.route.params == undefined ? '' : props.route.params.train.trainNumber1,
+    props.route.params == undefined
+      ? ''
+      : props.route.params.train.trainNumber1,
   );
   useEffect(() => {
     setTrain(
-      props.route.params == undefined ? '' : props.route.params.train.trainNumber1,
+      props.route.params == undefined
+        ? ''
+        : props.route.params.train.trainNumber1,
     );
   }, [props.route.params]);
 
   return (
     <View style={{flex: 1}}>
       <View style={{flex: 8, alignItems: 'center', justifyContent: 'center'}}>
-      {props.route.params ?
+        {props.route.params ? (
           <Text>
             Junan nro: {props.route.params.train.trainNumber1} Nopeus:
             {props.route.params.train.speed1}km/h
           </Text>
-      : null}
+        ) : null}
       </View>
       <NavButtons params={props} />
     </View>
@@ -137,7 +141,19 @@ const ScheduleScreen = props => {
   const [trains2, setTrainsSchedules] = useState([]);
 
   const keyHandler2 = (item, index) => {
-    console.log(item.trainType + '. ' + item.trainNumber + '. ' + item.stationShortCode + '. ' + item.scheduledTime + '. ' + item.actualTime + '. ' + item.latency);
+    console.log(
+      item.trainType +
+        '. ' +
+        item.trainNumber +
+        '. ' +
+        item.stationShortCode +
+        '. ' +
+        item.scheduledTime +
+        '. ' +
+        item.actualTime +
+        '. ' +
+        item.latency,
+    );
     return index.toString();
   };
 
@@ -153,16 +169,16 @@ const ScheduleScreen = props => {
       console.log('JSONing data');
       let json = await response.json();
       console.log('dadadwadsd');
-     
+
       console.log(json[0].trainType);
       console.log(json[0].trainNumber);
-      for (let i = 0; i < json[0].timeTableRows.length; i++){
-      console.log(json[0].timeTableRows[i].stationShortCode);
-      console.log(json[0].timeTableRows[i].scheduledTime);
-      console.log(json[0].timeTableRows[i].actualTime);
-      console.log(json[0].timeTableRows[i].differenceInMinutes);
+      for (let i = 0; i < json[0].timeTableRows.length; i++) {
+        console.log(json[0].timeTableRows[i].stationShortCode);
+        console.log(json[0].timeTableRows[i].scheduledTime);
+        console.log(json[0].timeTableRows[i].actualTime);
+        console.log(json[0].timeTableRows[i].differenceInMinutes);
       }
-    
+
       // for (let i = 0; i < json.length; i++) {
       //   const trainObject2 = {
       //     trainType1: json[i].trainType,
@@ -181,14 +197,28 @@ const ScheduleScreen = props => {
     setTrainsSchedules(trainScheduleList);
     console.log(trainScheduleList);
   };
-  const renderTrainSchedule = (item) => {
+  const renderTrainSchedule = item => {
     console.log(
-      'renderTrain A: ' + item.item.trainType + ' = ' + item.item.station + ' = ' + item.item.trainNumber + ' = ' + item.item.scheduledTime + ' = ' + item.item.actualTime + ' = ' + item.item.latency,
+      'renderTrain A: ' +
+        item.item.trainType +
+        ' = ' +
+        item.item.station +
+        ' = ' +
+        item.item.trainNumber +
+        ' = ' +
+        item.item.scheduledTime +
+        ' = ' +
+        item.item.actualTime +
+        ' = ' +
+        item.item.latency,
     );
     return (
       <View style={styles.listItemStyle}>
         <Text>
-        {item.item.trainType1} {item.item.trainNumber1} Asema:{item.item.station1} Tuloaika:{item.item.scheduledTime1} Oikea Tuloaika{item.item.actualTime1} Myöhästyminen: {item.item.differenceInMinutes}
+          {item.item.trainType1} {item.item.trainNumber1} Asema:
+          {item.item.station1} Tuloaika:{item.item.scheduledTime1} Oikea
+          Tuloaika{item.item.actualTime1} Myöhästyminen:{' '}
+          {item.item.differenceInMinutes}
         </Text>
       </View>
     );
@@ -210,7 +240,6 @@ const ScheduleScreen = props => {
         />
       </View>
     </View>
-    
   );
 };
 
@@ -236,7 +265,6 @@ const NavButtons = ({params}) => {
 };
 
 const styles = StyleSheet.create({
-
   flatliststyle: {
     wtrainNumberth: '80%',
     backgroundColor: 'blue',
@@ -289,7 +317,7 @@ const styles = StyleSheet.create({
 
   listStyle: {
     flex: 8,
-    width:'100%',
+    width: '100%',
     alignItems: 'center',
     backgroundColor: '#eee',
     borderColor: 'blue',
